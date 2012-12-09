@@ -214,7 +214,7 @@ public abstract class HashRingGenerator
 	 * @param k
 	 * @author Matan
 	 */
-	private static void addSuccessors(Graph<HashRingNode,DefaultEdge> graph,int k)
+	protected static void addSuccessors(Graph<HashRingNode,DefaultEdge> graph,int k)
 	{
 		if(k<=0)
 		{
@@ -240,7 +240,7 @@ public abstract class HashRingGenerator
 	 * @return The node following the given node in the graph.
 	 * @Author Matan
 	 */
-	private static HashRingNode getNext(Graph<HashRingNode,DefaultEdge> ring,HashRingNode node)
+	protected static HashRingNode getNext(Graph<HashRingNode,DefaultEdge> ring,HashRingNode node)
 	{
 		if(ring.vertexSet().contains(node)==false)
 		{

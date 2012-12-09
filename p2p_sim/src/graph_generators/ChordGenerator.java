@@ -27,7 +27,7 @@ public class ChordGenerator extends HashRingGenerator {
 			throw new IllegalArgumentException("Non positive argument to generateChord!");
 		Graph<HashRingNode,DefaultEdge> $ = HashRingGenerator.generateHashRingGraph(numberOfNodes, true);
 		addFingers($);
-		
+		HashRingGenerator.addSuccessors($, successorLen);
 		return $;
 	}
 	private static void addFingers(Graph<HashRingNode,DefaultEdge> graph)
