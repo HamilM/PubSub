@@ -32,6 +32,7 @@ public abstract class AbstractPubSubModel extends Model
 	protected ArrayList<HashRingNode> nodeList;
 	protected boolean[] isNodeSubscriber;		/*Is the node represented in the nodeList by
 												 *the chosen index a subscriber*/
+	protected ArrayList<Integer> subscribersIdList;
 	protected long publisherIndex;			/*The node represented in the nodeList by
 											  the index the publisher*/
 	protected double numOfSubs;
@@ -58,6 +59,7 @@ public abstract class AbstractPubSubModel extends Model
 		nodeList = new ArrayList<HashRingNode>(graph.vertexSet());
 		Collections.sort(nodeList);
 		isNodeSubscriber = new boolean[nodeList.size()];
+		subscribersIdList = new ArrayList<Integer>();
 	}
 	
 	public Graph<HashRingNode, DefaultEdge> getGraph()
@@ -73,6 +75,11 @@ public abstract class AbstractPubSubModel extends Model
 	public boolean IsNodeSubscriber(int index)
 	{
 		return isNodeSubscriber[index];
+	}
+	
+	public ArrayList<Integer> getSubscribersIdList()
+	{
+		return subscribersIdList;
 	}
 
 	public int getPublisherIndex()
@@ -124,6 +131,7 @@ public abstract class AbstractPubSubModel extends Model
 			{
 				subCount++;
 				isNodeSubscriber[(int)current] = true;
+				subscribersIdList.add((int)current);
 			}
 		}
 		

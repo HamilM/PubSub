@@ -10,6 +10,7 @@ import graph_generators.SymphonyGenerator;
 
 import model.AbstractPubSubModel;
 import model.DirectedBroadcastModel;
+import model.MulticastModel;
 
 import org.jgrapht.Graph;
 import org.jgrapht.ext.VisioExporter;
@@ -27,19 +28,19 @@ public class Simulation
 	 */
 	public static void main(String[] args) throws FileNotFoundException
 	{
-		Graph<HashRingNode, DefaultEdge> g = SymphonyGenerator.generateSymphonyGraph(100, 5, true);
+		Graph<HashRingNode, DefaultEdge> g = SymphonyGenerator.generateSymphonyGraph(10, 2, true);
 		
 		VisioExporter<HashRingNode,DefaultEdge> e = new VisioExporter<HashRingNode,DefaultEdge>();
 		File file = new File("out.csv");
 		e.export(new FileOutputStream(file), g);
 		
-		AbstractPubSubModel model = new DirectedBroadcastModel(g, 3);
+		AbstractPubSubModel model = new MulticastModel(g, 2);
 		Experiment exp = new Experiment("Experiment1");
 		
 		model.connectToExperiment(exp);
 		exp.setShowProgressBar(true);
 		exp.stop(new TimeInstant(10, TimeUnit.MINUTES));
-		exp.tracePeriod(new TimeInstant(0), new TimeInstant(1, TimeUnit.MINUTES));
+		exp.tracePeriod(new TimeInstant(0), new TimeInstant(1, TimeUnit.SECONDS));
 		exp.debugPeriod(new TimeInstant(0), new TimeInstant(1, TimeUnit.MINUTES));
 		exp.start();
 		exp.report();
