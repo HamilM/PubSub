@@ -1,7 +1,9 @@
 package graph_generators;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.jgrapht.*;
 import org.jgrapht.graph.*;
@@ -205,5 +207,48 @@ public abstract class HashRingGenerator
 		}
 		
 		return hashRing;
+	}
+	/**
+	 * Assuming the input graph is a ring - add to each node edges to its k successors.
+	 * @param graph
+	 * @param k
+	 * @author Matan
+	 */
+	private static void addSuccessors(Graph<HashRingNode,DefaultEdge> graph,int k)
+	{
+		if(k<=0)
+		{
+			throw new IllegalArgumentException("Can add only a positive number of successors!");
+		}
+		Set<DefaultEdge> edgesToAdd = new HashSet<>();
+		HashRingNode next = null;
+		for(HashRingNode node : graph.vertexSet())
+		{
+			HashRingNode tmp = getNext(graph, node);
+			for(int i = 0 ; i<k-1 ; ++i)
+			{
+				if(!graph.containsEdge(node, tmp))
+					graph.addEdge(node, tmp);
+				tmp = getNext(graph, tmp);
+			}
+		}
+	}
+	
+	/**
+	 * @param ring A ring of nodes.
+	 * @param node Node in the ring.
+	 * @return The node following the given node in the graph.
+	 * @Author Matan
+	 */
+	private static HashRingNode getNext(Graph<HashRingNode,DefaultEdge> ring,HashRingNode node)
+	{
+		if(ring.vertexSet().contains(node)==false)
+		{
+			throw new IllegalArgumentException("The node is not in the ring!");
+		}
+		for(DefaultEdge e : ring.edgesOf(node))
+			if(ring.getEdgeSource(e) == node)
+				return ring.getEdgeTarget(e);
+		throw new IllegalArgumentException("The ring is not well formed!");
 	}
 }
