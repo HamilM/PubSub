@@ -5,27 +5,36 @@ import desmoj.core.simulator.Model;
 
 public class Message extends Entity 
 {
-	private int srcId;
-	private int dstId;
+	private final static String fName = "Message";
+	private final static boolean fShowInTrace = true;
+	
+	private double srcId;
+	private double dstId;
+	private boolean isFirstMessage;
 
-	public Message(Model owner, String name, boolean showInTrace, int src, int dst) 
+	public Message(Model owner, double src, double dst, boolean isFirstMessage) 
 	{
-		super(owner, name, showInTrace);
+		super(owner, fName, fShowInTrace);
 		
 		this.srcId = src;
 		this.dstId = dst;
+		
+		this.isFirstMessage = isFirstMessage;
 	}
 
-	public int getSrc() 
+	public double getSrc() 
 	{
 		return srcId;
 	}
 
-	public int getDst() 
+	public double getDst() 
 	{
 		return dstId;
 	}
 	
+	public boolean isFirstMessage()
+	{
+		return isFirstMessage;
+	}
 	
-
 }

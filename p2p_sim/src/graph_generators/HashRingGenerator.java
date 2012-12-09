@@ -10,16 +10,124 @@ public abstract class HashRingGenerator
 {
 	protected static ArrayList<HashRingNode> nodeList;
 	
-	public static HashRingNode getSuccessorNode (final double hashKey, List<HashRingNode> nodeList)
+	
+	public static int getSuccessorNodeId (final double hashKey, final List<HashRingNode> nodeList)
 	{
 		for (int i = 0; i < nodeList.size(); i++)
 		{
 			if (hashKey <= nodeList.get(i).getHashKey())
 			{
-				return nodeList.get(i);
+				return i;
 			}
 		}
-		return nodeList.get(0);
+		return 0;
+	}
+	
+	public static int getPredcessorNodeId (final double hashKey, final List<HashRingNode> nodeList)
+	{
+		int successorId = getSuccessorNodeId(hashKey, nodeList);
+		if (successorId == 0)
+		{
+			return nodeList.size()-1;
+		}
+		return successorId-1;
+	}
+	
+	public static HashRingNode getSuccessorNode (final double hashKey, final List<HashRingNode> nodeList)
+	{
+		return nodeList.get(getSuccessorNodeId(hashKey, nodeList));
+	}
+	
+	public static int getSuccessorNodeId (final HashRingNode node, final List<HashRingNode> nodeList)
+	{
+		int nodeId = getSuccessorNodeId(node.getHashKey(), nodeList);
+		if (nodeId == nodeList.size()-1)
+		{
+			return 0;
+		}
+		return nodeId+1;
+	}
+	
+	public static HashRingNode getSuccessorNode (final HashRingNode node, final List<HashRingNode> nodeList)
+	{
+		return nodeList.get(getSuccessorNodeId(node, nodeList));
+	}
+	
+	public static HashRingNode getPredcessorNode (final double hashKey, final List<HashRingNode> nodeList)
+	{
+		return nodeList.get(getPredcessorNodeId(hashKey, nodeList));
+	}
+	
+	public static int getClosestLinkedPredecessorId(final double currentNodeHashKey, final double destinationHashKey, 
+															 final List<HashRingNode> nodeList, Graph<HashRingNode, DefaultEdge> graph)
+	{
+		int unlinkedPredecessorId = getPredcessorNodeId(destinationHashKey, nodeList);
+		int currentNodeId = getPredcessorNodeId(currentNodeHashKey, nodeList);
+		
+		for (int i = unlinkedPredecessorId; i >= 0; i--)
+		{
+			if (graph.containsEdge(nodeList.get(currentNodeId), nodeList.get(i)) || i == currentNodeId)
+			{
+				return i;
+			}
+		}
+		
+		for (int i = nodeList.size()-1; i > unlinkedPredecessorId; i--)
+		{
+			if (graph.containsEdge(nodeList.get(currentNodeId), nodeList.get(i)) || i == currentNodeId)
+			{
+				return i;
+			}
+		}
+		return -1;
+	}
+	
+	public static HashRingNode getClosestLinkedPredecessor(final double currentNodeHashKey, final double destinationHashKey,
+			 													final List<HashRingNode> nodeList, Graph<HashRingNode, DefaultEdge> graph)
+	{
+		return nodeList.get(getClosestLinkedPredecessorId(currentNodeHashKey, destinationHashKey, nodeList, graph));
+	}
+	
+	public static int getClosestLinkedSuccessorId(double currentNodeHashKey, double destinationHashKey, double upperbound,
+															ArrayList<HashRingNode> nodeList, Graph<HashRingNode, DefaultEdge> graph)
+	{
+		int unlinkedPredecessorId = getSuccessorNodeId(destinationHashKey, nodeList);
+		int currentNodeId = getPredcessorNodeId(currentNodeHashKey, nodeList);
+		int upperboundNodeId = getSuccessorNodeId(upperbound, nodeList);
+		
+		for (int i = unlinkedPredecessorId; i < nodeList.size(); i++)
+		{
+			if (i == upperboundNodeId)
+			{
+				return currentNodeId;
+			}
+			
+			if (graph.containsEdge(nodeList.get(currentNodeId), nodeList.get(i)) || i == currentNodeId)
+			{
+				return i;
+			}
+			
+		}
+		
+		for (int i = 0; i < unlinkedPredecessorId; i++)
+		{
+			if (i == upperboundNodeId)
+			{
+				return currentNodeId;
+			}
+			
+			if (graph.containsEdge(nodeList.get(currentNodeId), nodeList.get(i)) || i == currentNodeId)
+			{
+				return i;
+			}
+		}
+		return -1;
+	}
+	
+	public static HashRingNode getClosestLinkedSuccessor(double currentNodeHashKey, double destinationHashKey, double upperbound,
+															ArrayList<HashRingNode> nodeList, Graph<HashRingNode, DefaultEdge> graph)
+	{
+		return nodeList.get(getClosestLinkedSuccessorId(currentNodeHashKey, destinationHashKey, upperbound, nodeList, graph));
 	}
 	
 	public static Graph<HashRingNode, DefaultEdge> generateHashRingGraph(final int n, final boolean isDirected)
