@@ -21,8 +21,10 @@ public class ChordGenerator extends HashRingGenerator {
 	{
 		return successorLength;
 	}
-	public static Graph<HashRingNode, DefaultEdge> generateChord(int numberOfNodes)
+	public static Graph<HashRingNode, DefaultEdge> generateChord(int numberOfNodes,int successorLen)
 	{
+		if(successorLen<=0 || numberOfNodes <= 0)
+			throw new IllegalArgumentException("Non positive argument to generateChord!");
 		Graph<HashRingNode,DefaultEdge> $ = HashRingGenerator.generateHashRingGraph(numberOfNodes, true);
 		addFingers($);
 		
@@ -42,5 +44,4 @@ public class ChordGenerator extends HashRingGenerator {
 			}
 		}
 	}
-//	private static 
 }
