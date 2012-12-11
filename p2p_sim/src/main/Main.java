@@ -22,10 +22,10 @@ public class Main
 	 */
 	public static void main(String[] args) throws IOException
 	{
-		Graph<HashRingNode, DefaultEdge> g = SymphonyGenerator.generateSymphonyGraph(100, 2, true);
-		VisioExporter<HashRingNode,DefaultEdge> e = new VisioExporter<HashRingNode,DefaultEdge>();
-		File file = new File("C:\\Users\\seddie\\Documents\\out.csv");
-		e.export(new FileOutputStream(file), g);
+//		Graph<HashRingNode, DefaultEdge> g = SymphonyGenerator.generateSymphonyGraph(100, 2, true);
+//		VisioExporter<HashRingNode,DefaultEdge> e = new VisioExporter<HashRingNode,DefaultEdge>();
+//		File file = new File("C:\\Users\\seddie\\Documents\\out.csv");
+//		e.export(new FileOutputStream(file), g);
 		
 	}
 
