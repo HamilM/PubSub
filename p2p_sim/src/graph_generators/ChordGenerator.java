@@ -1,6 +1,7 @@
 package graph_generators;
 
 
+import java.util.NoSuchElementException;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -9,6 +10,7 @@ import org.jgrapht.Graph;
 
 public class ChordGenerator extends HashRingGenerator {
 	private static int successorLength=1;
+	private static final int hashPower = 0;
 	public static void setSuccessorLength(int ui)
 	{
 		if(ui<=0)
@@ -35,11 +37,18 @@ public class ChordGenerator extends HashRingGenerator {
 		SortedSet<HashRingNode> s = new TreeSet<>(graph.vertexSet());
 		for(HashRingNode node: graph.vertexSet())
 		{
-			for(int i = 0 ; i < 64 ; ++i)
+			for(int i = 0 ; i < hashPower ; ++i)
 			{
-				double next = (node.getHashKey()+((double)1)/(1<<64-i))%1;
-				HashRingNode successor = s.tailSet(new HashRingNode(next)).first();
-				if(!graph.containsEdge(node, successor))
+				HashRingNode successor;
+				double next = (node.getHashKey()+((double)1)/(1<<hashPower-i))%1;
+				try{
+					 successor = s.tailSet(new HashRingNode(next)).first();
+				}
+				catch(NoSuchElementException e)
+				{
+					successor = s.first();
+				}
+				if(!graph.containsEdge(node, successor) && node!=successor)
 					graph.addEdge(node,successor);
 			}
 		}

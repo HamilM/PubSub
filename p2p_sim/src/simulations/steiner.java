@@ -9,6 +9,7 @@ import org.jgrapht.Graph;
 import org.jgrapht.alg.KruskalMinimumSpanningTree;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DefaultWeightedEdge;
+import org.jgrapht.graph.Pseudograph;
 import org.jgrapht.graph.SimpleGraph;
 import org.jgrapht.graph.SimpleWeightedGraph;
 import org.jgrapht.traverse.BreadthFirstIterator;
@@ -18,19 +19,24 @@ public class steiner {
 
 	public static double steinerApprox(Graph<HashRingNode,DefaultEdge> ring)
 	{
-		Graph<HashRingNode, DefaultWeightedEdge> tmp = new SimpleGraph<>(DefaultWeightedEdge.class);
+		Pseudograph<HashRingNode, DefaultWeightedEdge> tmp = new Pseudograph<>(DefaultWeightedEdge.class);
 		init(tmp,ring);
 		Graph<HashRingNode,DefaultWeightedEdge> GC = getGC(tmp);
 		tmp = computeSubGraph(GC);
+		System.out.println(tmp);
+		for(DefaultWeightedEdge n : tmp.edgeSet())
+		{
+			System.out.println(n+","+tmp.getEdgeWeight(n));
+		}
 		KruskalMinimumSpanningTree<HashRingNode,DefaultWeightedEdge> k = 
 				new KruskalMinimumSpanningTree<>(tmp);
 		return k.getSpanningTreeCost();
 	}
-	private static SimpleWeightedGraph<HashRingNode, DefaultWeightedEdge> 
+	private static Pseudograph<HashRingNode, DefaultWeightedEdge> 
 				computeSubGraph(Graph<HashRingNode,DefaultWeightedEdge> GC )
 	{
-		SimpleWeightedGraph<HashRingNode, DefaultWeightedEdge> tmp = 
-				new SimpleWeightedGraph<>(DefaultWeightedEdge.class);
+		Pseudograph<HashRingNode, DefaultWeightedEdge> tmp = 
+				new Pseudograph<>(DefaultWeightedEdge.class);
 		for(HashRingNode n : GC.vertexSet())
 		{
 			if(n.getRole()!=HashRingNode.Role.NONE)
@@ -42,9 +48,13 @@ public class steiner {
 		{
 			for(DefaultWeightedEdge e : GC.edgesOf(n))
 			{
-				if(!tmp.containsEdge(tmp.getEdgeSource(e),tmp.getEdgeTarget(e)))
+				if(
+						!tmp.containsEdge(tmp.getEdgeSource(e),tmp.getEdgeTarget(e)) &&
+						tmp.vertexSet().contains(tmp.getEdgeSource(e))&&
+						tmp.vertexSet().contains(tmp.getEdgeTarget(e))
+						)
 				{
-					tmp.addEdge(tmp.getEdgeSource(e), tmp.getEdgeTarget(e));
+					tmp.setEdgeWeight(tmp.addEdge(GC.getEdgeSource(e), GC.getEdgeTarget(e)),GC.getEdgeWeight(e));
 				}
 			}
 		}
@@ -63,7 +73,7 @@ public class steiner {
 	}
 	private static Graph<HashRingNode,DefaultWeightedEdge> getGC(Graph<HashRingNode,DefaultWeightedEdge> ring)
 	{
-		SimpleWeightedGraph<HashRingNode,DefaultWeightedEdge> $ = new SimpleWeightedGraph<>(DefaultWeightedEdge.class);
+		Pseudograph<HashRingNode,DefaultWeightedEdge> $ = new Pseudograph<>(DefaultWeightedEdge.class);
 		for(HashRingNode i : ring.vertexSet())
 		{
 			$.addVertex(i);
@@ -72,7 +82,10 @@ public class steiner {
 		{
 			Map<HashRingNode,Integer> m = BFS(i,ring);
 			for(HashRingNode j : m.keySet())
-				$.setEdgeWeight($.addEdge(i, j), m.get(i));
+			{
+				$.setEdgeWeight($.addEdge(i, j), m.get(j));
+			}
+			
 		}
 		
 		return $;
@@ -110,7 +123,7 @@ public class steiner {
 			{
 				DefaultWeightedEdge e = edges.next();
 				HashRingNode n1 = g.getEdgeSource(e);
-				HashRingNode n2 = g.getEdgeSource(e);
+				HashRingNode n2 = g.getEdgeTarget(e);
 				if(m.containsKey(n1))
 				{
 					min = min > m.get(n1) ? m.get(n1) : min;
