@@ -1,11 +1,14 @@
 package simulations;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.jgrapht.Graph;
+import org.jgrapht.alg.DijkstraShortestPath;
 import org.jgrapht.alg.KruskalMinimumSpanningTree;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DefaultWeightedEdge;
@@ -15,50 +18,80 @@ import org.jgrapht.graph.SimpleWeightedGraph;
 import org.jgrapht.traverse.BreadthFirstIterator;
 import java.lang.Integer;
 import graph_generators.*;
+import graph_generators.HashRingNode.Role;
 public class steiner {
 
 	public static double steinerApprox(Graph<HashRingNode,DefaultEdge> ring)
 	{
+		Set<DefaultWeightedEdge> es;
 		Pseudograph<HashRingNode, DefaultWeightedEdge> tmp = new Pseudograph<>(DefaultWeightedEdge.class);
 		init(tmp,ring);
-		Graph<HashRingNode,DefaultWeightedEdge> GC = getGC(tmp);
-		tmp = computeSubGraph(GC);
-		System.out.println(tmp);
-		for(DefaultWeightedEdge n : tmp.edgeSet())
-		{
-			System.out.println(n+","+tmp.getEdgeWeight(n));
-		}
+		Pseudograph<HashRingNode,DefaultWeightedEdge> GC = getGC(tmp);
+		System.gc();
 		KruskalMinimumSpanningTree<HashRingNode,DefaultWeightedEdge> k = 
-				new KruskalMinimumSpanningTree<>(tmp);
-		return k.getSpanningTreeCost();
+				new KruskalMinimumSpanningTree<>(computeSubGraph(GC));
+		es = k.getEdgeSet();
+		tmp = getSteinerTree(es, tmp, GC);
+		return tmp.edgeSet().size();
+	}
+	
+	private static Pseudograph<HashRingNode, DefaultWeightedEdge> getSteinerTree
+		(Set<DefaultWeightedEdge> edges, Pseudograph<HashRingNode, DefaultWeightedEdge> graph,
+				Pseudograph<HashRingNode, DefaultWeightedEdge>	GC
+			)
+	{
+		Pseudograph<HashRingNode, DefaultWeightedEdge> $ = new Pseudograph<>(DefaultWeightedEdge.class);
+		for(DefaultWeightedEdge e : edges)
+		{
+			List<DefaultWeightedEdge> d;
+			d=DijkstraShortestPath.findPathBetween(graph, GC.getEdgeSource(e), GC.getEdgeTarget(e));
+			for(DefaultWeightedEdge a : d)
+			{
+				HashRingNode n1 = graph.getEdgeSource(a);
+				HashRingNode n2 = graph.getEdgeTarget(a);
+				if(!$.containsVertex(n1))
+					$.addVertex(n1);
+				if(!$.containsVertex(n2))
+					$.addVertex(n2);
+				if(!$.containsEdge(n1,n2))
+					$.addEdge(n1, n2);
+			}	
+		}
+		return $;
 	}
 	private static Pseudograph<HashRingNode, DefaultWeightedEdge> 
-				computeSubGraph(Graph<HashRingNode,DefaultWeightedEdge> GC )
+				computeSubGraph(Pseudograph<HashRingNode,DefaultWeightedEdge> GC )
 	{
-		Pseudograph<HashRingNode, DefaultWeightedEdge> tmp = 
-				new Pseudograph<>(DefaultWeightedEdge.class);
+		LinkedList<DefaultWeightedEdge> edgesToReomve = new LinkedList<>();
+		for(DefaultWeightedEdge e : GC.edgeSet())
+		{
+			if(
+					GC.getEdgeSource(e).getRole()==Role.NONE ||
+					GC.getEdgeTarget(e).getRole() == Role.NONE
+					)
+			{
+				edgesToReomve.add(e);
+			}
+		}
+		for(DefaultWeightedEdge e : edgesToReomve)
+		{
+			GC.removeEdge(e);
+		}
+		edgesToReomve=null;
+		LinkedList<HashRingNode> verticesToReomve = new LinkedList<>();
 		for(HashRingNode n : GC.vertexSet())
 		{
-			if(n.getRole()!=HashRingNode.Role.NONE)
+			if(n.getRole()==HashRingNode.Role.NONE)
 			{
-				tmp.addVertex(n);
+				verticesToReomve.add(n);
 			}
 		}
-		for(HashRingNode n : tmp.vertexSet())
+		for(HashRingNode n : verticesToReomve)
 		{
-			for(DefaultWeightedEdge e : GC.edgesOf(n))
-			{
-				if(
-						!tmp.containsEdge(tmp.getEdgeSource(e),tmp.getEdgeTarget(e)) &&
-						tmp.vertexSet().contains(tmp.getEdgeSource(e))&&
-						tmp.vertexSet().contains(tmp.getEdgeTarget(e))
-						)
-				{
-					tmp.setEdgeWeight(tmp.addEdge(GC.getEdgeSource(e), GC.getEdgeTarget(e)),GC.getEdgeWeight(e));
-				}
-			}
+			GC.removeVertex(n);
 		}
-		return tmp;
+		
+		return GC;
 	}
 	private static void init(Graph<HashRingNode,DefaultWeightedEdge> tmp, Graph<HashRingNode,DefaultEdge> ring)
 	{
@@ -71,7 +104,7 @@ public class steiner {
 			tmp.addEdge(ring.getEdgeSource(j),ring.getEdgeTarget(j));
 		}
 	}
-	private static Graph<HashRingNode,DefaultWeightedEdge> getGC(Graph<HashRingNode,DefaultWeightedEdge> ring)
+	private static Pseudograph<HashRingNode,DefaultWeightedEdge> getGC(Graph<HashRingNode,DefaultWeightedEdge> ring)
 	{
 		Pseudograph<HashRingNode,DefaultWeightedEdge> $ = new Pseudograph<>(DefaultWeightedEdge.class);
 		for(HashRingNode i : ring.vertexSet())
