@@ -1,5 +1,10 @@
 package model;
 
+import java.util.Collections;
+import java.util.List;
+
+import javax.management.BadAttributeValueExpException;
+
 import graph_generators.HashRingNode;
 
 import model.dynamic_types.BroadcastMessageGeneratorEvent;
@@ -13,14 +18,18 @@ import desmoj.core.simulator.TimeSpan;
 public class MulticastModel extends AbstractPubSubModel
 {
 
-	public MulticastModel(Graph<HashRingNode, DefaultEdge> graph, long numOfSubs)
+	public MulticastModel(Graph<HashRingNode, DefaultEdge> graph, double subToAllRatio) throws BadAttributeValueExpException
 	{
-		super(graph, numOfSubs);
+		super(graph, subToAllRatio);
 	}
 
 	@Override
 	public void doInitialSchedules()
 	{
+		List<Integer> l = subscribersIdList;
+		Collections.sort(l);
+		System.out.println(l);
+		System.out.println(publisherIndex);
 		MulticastMessageGeneratorEvent generator = new MulticastMessageGeneratorEvent(this, "Message Generator", true);
 		generator.schedule(new TimeSpan(0));
 	}

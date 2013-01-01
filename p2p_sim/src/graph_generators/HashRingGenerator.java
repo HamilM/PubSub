@@ -12,135 +12,111 @@ public abstract class HashRingGenerator
 {
 	protected static ArrayList<HashRingNode> nodeList;
 	
-	public static int getSuccessorNodeId (final double hashKey, final List<HashRingNode> nodeList)
+	protected static int getSuccessorNodeId (final double hashKey, final List<HashRingNode> nodeList)
 	{
-		for (int i = 0; i < nodeList.size(); i++)
+		int lower = 0;
+		int upper = nodeList.size()-1;
+		int middle = (upper-lower)/2;
+		if (nodeList.get(lower).getHashKey() > hashKey || nodeList.get(upper).getHashKey() < hashKey)
 		{
-			if (hashKey <= nodeList.get(i).getHashKey())
+			return lower;
+		}
+		
+		if (nodeList.get(upper-1).getHashKey() < hashKey)
+		{
+			return upper;
+		}
+		
+		while (true)
+		{
+			if (nodeList.get(middle).getHashKey() == hashKey)
 			{
-				return i;
+				return middle;
 			}
+			
+			if (nodeList.get(middle).getHashKey() < hashKey)
+			{
+				lower = middle;
+			}
+			else //nodeList.get(middle).getHashKey() > hashKey
+			{
+				if (nodeList.get((middle-1)%nodeList.size()).getHashKey() < hashKey)
+				{
+					return middle;
+				}
+				
+				upper = middle;
+			}
+			middle = (upper-lower)/2 + lower;
 		}
-		return 0;
+		
 	}
-	
-	public static int getPredcessorNodeId (final double hashKey, final List<HashRingNode> nodeList)
-	{
-		int successorId = getSuccessorNodeId(hashKey, nodeList);
-		if (successorId == 0)
-		{
-			return nodeList.size()-1;
-		}
-		return successorId-1;
-	}
-	
-	public static HashRingNode getSuccessorNode (final double hashKey, final List<HashRingNode> nodeList)
+//	
+//	public static int getPredcessorNodeId (final double hashKey, final List<HashRingNode> nodeList)
+//	{
+//		int successorId = getSuccessorNodeId(hashKey, nodeList);
+//		if (successorId == 0)
+//		{
+//			return nodeList.size()-1;
+//		}
+//		return successorId-1;
+//	}
+//	
+	protected static HashRingNode getSuccessorNode (final double hashKey, final List<HashRingNode> nodeList)
 	{
 		return nodeList.get(getSuccessorNodeId(hashKey, nodeList));
 	}
-	
-	public static int getSuccessorNodeId (final HashRingNode node, final List<HashRingNode> nodeList)
-	{
-		int nodeId = getSuccessorNodeId(node.getHashKey(), nodeList);
-		if (nodeId == nodeList.size()-1)
-		{
-			return 0;
-		}
-		return nodeId+1;
-	}
-	
-	public static HashRingNode getSuccessorNode (final HashRingNode node, final List<HashRingNode> nodeList)
-	{
-		return nodeList.get(getSuccessorNodeId(node, nodeList));
-	}
-	
-	public static HashRingNode getPredcessorNode (final double hashKey, final List<HashRingNode> nodeList)
-	{
-		return nodeList.get(getPredcessorNodeId(hashKey, nodeList));
-	}
-	
-	/**
-	 * Returns the id of the first node preceding destinationHashKey (if destinationHashKey is a node, it will start from his predecessor) 
-	 * on the ring and has an incoming edge from currentNodeHashKey.
-	 * @param currentNodeHashKey
-	 * @param destinationHashKey
-	 * @param nodeList
-	 * @param graph
-	 * @return
-	 */
-	public static int getClosestLinkedPredecessorId(final double currentNodeHashKey, final double destinationHashKey, 
-															 final List<HashRingNode> nodeList, Graph<HashRingNode, DefaultEdge> graph)
-	{
-		int unlinkedPredecessorId = getPredcessorNodeId(destinationHashKey, nodeList);
-		int currentNodeId = getSuccessorNodeId(currentNodeHashKey, nodeList);
-		
-		if (getSuccessorNode(destinationHashKey, nodeList).getHashKey() == destinationHashKey)
-		{
-			unlinkedPredecessorId = getSuccessorNodeId(destinationHashKey, nodeList);
-		}
-		
-		for (int i = unlinkedPredecessorId; i >= 0; i--)
-		{
-			if (graph.containsEdge(nodeList.get(currentNodeId), nodeList.get(i)) || i == currentNodeId)
-			{
-				return i;
-			}
-		}
-		
-		for (int i = nodeList.size()-1; i > unlinkedPredecessorId; i--)
-		{
-			if (graph.containsEdge(nodeList.get(currentNodeId), nodeList.get(i)) || i == currentNodeId)
-			{
-				return i;
-			}
-		}
-		return -1;
-	}
-	
-	
-	/**
-	 * Returns the first node preceding destinationHashKey (if destinationHashKey is a node, it will start from his predecessor) 
-	 * on the ring and has an incoming edge from currentNodeHashKey.
-	 * @param currentNodeHashKey
-	 * @param destinationHashKey
-	 * @param nodeList
-	 * @param graph
-	 * @return
-	 */
-	public static HashRingNode getClosestLinkedPredecessor(final double currentNodeHashKey, final double destinationHashKey,
-			 													final List<HashRingNode> nodeList, Graph<HashRingNode, DefaultEdge> graph)
-	{
-		return nodeList.get(getClosestLinkedPredecessorId(currentNodeHashKey, destinationHashKey, nodeList, graph));
-	}
-	
-//	public static int getClosestLinkedSuccessorId(double currentNodeHashKey, double destinationHashKey, double upperbound,
-//															ArrayList<HashRingNode> nodeList, Graph<HashRingNode, DefaultEdge> graph)
+//	
+//	public static int getSuccessorNodeId (final HashRingNode node, final List<HashRingNode> nodeList)
 //	{
-//		int unlinkedPredecessorId = getSuccessorNodeId(destinationHashKey, nodeList);
-//		int currentNodeId = getPredcessorNodeId(currentNodeHashKey, nodeList);
-//		int upperboundNodeId = getSuccessorNodeId(upperbound, nodeList);
-//		
-//		for (int i = unlinkedPredecessorId; i < nodeList.size(); i++)
+//		int nodeId = getSuccessorNodeId(node.getHashKey(), nodeList);
+//		if (nodeId == nodeList.size()-1)
 //		{
-//			if (i == upperboundNodeId)
-//			{
-//				return currentNodeId;
-//			}
-//			
+//			return 0;
+//		}
+//		return nodeId+1;
+//	}
+//	
+//	public static HashRingNode getSuccessorNode (final HashRingNode node, final List<HashRingNode> nodeList)
+//	{
+//		return nodeList.get(getSuccessorNodeId(node, nodeList));
+//	}
+//	
+//	public static HashRingNode getPredcessorNode (final double hashKey, final List<HashRingNode> nodeList)
+//	{
+//		return nodeList.get(getPredcessorNodeId(hashKey, nodeList));
+//	}
+//	
+//	/**
+//	 * Returns the id of the first node preceding destinationHashKey (if destinationHashKey is a node, it will start from his predecessor) 
+//	 * on the ring and has an incoming edge from currentNodeHashKey.
+//	 * @param currentNodeHashKey
+//	 * @param destinationHashKey
+//	 * @param nodeList
+//	 * @param graph
+//	 * @return
+//	 */
+//	public static int getClosestLinkedPredecessorId(final double currentNodeHashKey, final double destinationHashKey, 
+//															 final List<HashRingNode> nodeList, Graph<HashRingNode, DefaultEdge> graph)
+//	{
+//		int unlinkedPredecessorId = getPredcessorNodeId(destinationHashKey, nodeList);
+//		int currentNodeId = getSuccessorNodeId(currentNodeHashKey, nodeList);
+//		
+//		if (getSuccessorNode(destinationHashKey, nodeList).getHashKey() == destinationHashKey)
+//		{
+//			unlinkedPredecessorId = getSuccessorNodeId(destinationHashKey, nodeList);
+//		}
+//		
+//		for (int i = unlinkedPredecessorId; i >= 0; i--)
+//		{
 //			if (graph.containsEdge(nodeList.get(currentNodeId), nodeList.get(i)) || i == currentNodeId)
 //			{
 //				return i;
 //			}
-//			
 //		}
 //		
-//		for (int i = 0; i < unlinkedPredecessorId; i++)
+//		for (int i = nodeList.size()-1; i > unlinkedPredecessorId; i--)
 //		{
-//			if (i == upperboundNodeId)
-//			{
-//				return currentNodeId;
-//			}
-//			
 //			if (graph.containsEdge(nodeList.get(currentNodeId), nodeList.get(i)) || i == currentNodeId)
 //			{
 //				return i;
@@ -149,10 +125,20 @@ public abstract class HashRingGenerator
 //		return -1;
 //	}
 //	
-//	public static HashRingNode getClosestLinkedSuccessor(double currentNodeHashKey, double destinationHashKey, double upperbound,
-//															ArrayList<HashRingNode> nodeList, Graph<HashRingNode, DefaultEdge> graph)
+//	
+//	/**
+//	 * Returns the first node preceding destinationHashKey (if destinationHashKey is a node, it will start from his predecessor) 
+//	 * on the ring and has an incoming edge from currentNodeHashKey.
+//	 * @param currentNodeHashKey
+//	 * @param destinationHashKey
+//	 * @param nodeList
+//	 * @param graph
+//	 * @return
+//	 */
+//	public static HashRingNode getClosestLinkedPredecessor(final double currentNodeHashKey, final double destinationHashKey,
+//			 													final List<HashRingNode> nodeList, Graph<HashRingNode, DefaultEdge> graph)
 //	{
-//		return nodeList.get(getClosestLinkedSuccessorId(currentNodeHashKey, destinationHashKey, upperbound, nodeList, graph));
+//		return nodeList.get(getClosestLinkedPredecessorId(currentNodeHashKey, destinationHashKey, nodeList, graph));
 //	}
 	
 	/**

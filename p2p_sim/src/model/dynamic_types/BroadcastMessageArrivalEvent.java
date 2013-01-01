@@ -2,6 +2,7 @@ package model.dynamic_types;
 
 import graph_generators.HashRingGenerator;
 import graph_generators.HashRingNode;
+import graph_generators.HashRingTraverser;
 
 import java.util.ArrayList;
 
@@ -41,10 +42,10 @@ public class BroadcastMessageArrivalEvent extends AbstractMessageEvent
 		}
 		
 		Message[] messagesToSend = createDirectedBroadcastMessage(	firstMessage.getSrc(), 
-																	firstMessage.getDst(), 
-																	model.getNodeList(), 
-																	model.getGraph(), 
-																	model);
+																	firstMessage.getDst(),
+																	model.getNodeList(),
+																	model,
+																	model.getHashRingTraverser());
 		if (messagesToSend == null)
 		{
 			sendTraceNote("Message reached final target at node with vHashKey = "+ message.getSrc());
@@ -75,18 +76,18 @@ public class BroadcastMessageArrivalEvent extends AbstractMessageEvent
 	 * 
 	 * @return A size 2 array with the 2 messages to be sent.
 	 */
-	public static Message[] createDirectedBroadcastMessage(		double 								vHashKey,
-																double 								upperbound,
-																ArrayList<HashRingNode>				nodeList,
-																Graph<HashRingNode, DefaultEdge> 	graph,
-																AbstractPubSubModel					model)
+	public static Message[] createDirectedBroadcastMessage(		double 						vHashKey,
+																double 						upperbound,
+																ArrayList<HashRingNode>		nodeList,
+																AbstractPubSubModel			model,
+																HashRingTraverser			hashRingTraverser)
 	{		
 		
 		/*
 		 * Find the direct successor node of the current node.
 		 */
-		int vid = HashRingGenerator.getSuccessorNodeId(vHashKey, nodeList);
-		vid = vid < nodeList.size()-1 ? vid+1 : 0;
+		int vid = hashRingTraverser.getSuccessorNodeId(hashRingTraverser.nodeKeyToId(vHashKey));
+		//vid = vid < nodeList.size()-1 ? vid+1 : 0;
 		
 		HashRingNode directSuccessor = nodeList.get(vid);
 		
@@ -98,7 +99,7 @@ public class BroadcastMessageArrivalEvent extends AbstractMessageEvent
 		/*
 		 * Get the closest predecessor of the destinationHashKey which is linked to the current node 
 		 */
-		HashRingNode halfWaySuccessor = HashRingGenerator.getClosestLinkedPredecessor(vHashKey, destinationHashKey, nodeList, graph);
+		HashRingNode halfWaySuccessor = hashRingTraverser.getClosestLinkedPredecessor(vHashKey, destinationHashKey);
 		
 		/*
 		 * If The there are no linked nodes between the half way successor and the current node,

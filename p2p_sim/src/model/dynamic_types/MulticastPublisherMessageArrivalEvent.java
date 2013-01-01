@@ -17,7 +17,7 @@ public class MulticastPublisherMessageArrivalEvent extends MulticastMessageArriv
 	{
 		Queue<Message> queue = model.getMessageQueue(message.getSrc());
 		queue.insert(message);
-		sendTraceNote("Message arrived at publisher with vHashKey " + message.getSrc());
+		//sendTraceNote("Message arrived at publisher with vHashKey " + message.getSrc());
 		
 		Message firstMessage = queue.first();
 		queue.remove(firstMessage);

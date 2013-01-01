@@ -1,7 +1,9 @@
 package model.dynamic_types;
 
-import graph_generators.HashRingGenerator;
+import model.AbstractPubSubModel;
+import model.utils.RoutingTable;
 import graph_generators.HashRingNode;
+import graph_generators.HashRingTraverser;
 import desmoj.core.simulator.Model;
 import desmoj.core.simulator.Queue;
 import desmoj.core.simulator.TimeSpan;
@@ -19,14 +21,14 @@ public class MulticastMessageArrivalEvent extends AbstractMessageEvent
 	{
 		Queue<Message> queue = model.getMessageQueue(message.getSrc());
 		queue.insert(message);
-		sendTraceNote("Message arrived at node with vHashKey " + message.getSrc());
+		//sendTraceNote("Message arrived at node with vHashKey " + message.getSrc());
 		
 		Message firstMessage = queue.first();
 		queue.remove(firstMessage);
 		
 		if (firstMessage.getSrc() == firstMessage.getDst())
 		{
-			sendTraceNote("Message successfully arrived at subscriber " + firstMessage.getDst());
+			//sendTraceNote("Message successfully arrived at subscriber " + firstMessage.getDst());
 			return;
 		}
 		
@@ -35,7 +37,10 @@ public class MulticastMessageArrivalEvent extends AbstractMessageEvent
 	
 	protected void routeMessage(Message message)
 	{
-		HashRingNode target = HashRingGenerator.getClosestLinkedPredecessor(message.getSrc(), message.getDst(), model.getNodeList(), model.getGraph());
+		HashRingNode target = model.getRoutingTable().nextTarget(message.getSrc(), message.getDst());
+		/*
+		 * src is the hashKey of the node that is receiving the message. Dst is the final destination.
+		 */
 		Message nextMessage = new Message(model, target.getHashKey(), message.getDst(),false);
 		
 		MulticastMessageArrivalEvent messageGeneration = 

@@ -7,7 +7,7 @@ import desmoj.core.simulator.Model;
 public abstract class AbstractMessageEvent extends Event<Message>
 {
 	protected AbstractPubSubModel model;
-	protected final static boolean fShowInTrace = true;
+	protected final static boolean fShowInTrace = false;
 
 	public AbstractMessageEvent(Model owner, String name, boolean showInTrace)
 	{

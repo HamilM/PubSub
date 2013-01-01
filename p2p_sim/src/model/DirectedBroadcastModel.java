@@ -1,5 +1,7 @@
 package model;
 
+import javax.management.BadAttributeValueExpException;
+
 import graph_generators.HashRingNode;
 
 import model.dynamic_types.BroadcastMessageGeneratorEvent;
@@ -12,9 +14,9 @@ import desmoj.core.simulator.TimeSpan;
 public class DirectedBroadcastModel extends AbstractPubSubModel
 {
 
-	public DirectedBroadcastModel(Graph<HashRingNode, DefaultEdge> graph, long numOfSubs)
+	public DirectedBroadcastModel(Graph<HashRingNode, DefaultEdge> graph, double subToAllRatio) throws BadAttributeValueExpException
 	{
-		super(graph, numOfSubs);
+		super(graph, subToAllRatio);
 	}
 
 	@Override

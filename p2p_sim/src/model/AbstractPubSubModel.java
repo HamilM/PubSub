@@ -1,16 +1,20 @@
 package model;
 
 import graph_generators.HashRingNode;
+import graph_generators.HashRingTraverser;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
+import javax.management.BadAttributeValueExpException;
+
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultEdge;
 
 import model.dynamic_types.Message;
+import model.utils.RoutingTable;
 
 import desmoj.core.simulator.*;
 import desmoj.core.dist.*;
@@ -30,6 +34,8 @@ public abstract class AbstractPubSubModel extends Model
 	
 	protected Graph<HashRingNode, DefaultEdge> graph;
 	protected ArrayList<HashRingNode> nodeList;
+	protected HashRingTraverser hashRingTraverser;
+	protected RoutingTable routingTable;
 	protected boolean[] isNodeSubscriber;		/*Is the node represented in the nodeList by
 												 *the chosen index a subscriber*/
 	protected ArrayList<Integer> subscribersIdList;
@@ -44,7 +50,7 @@ public abstract class AbstractPubSubModel extends Model
 	protected ContDistExponential messageArrivalTime;
 	protected DiscreteDistUniform messageTargetNode;
 
-	public AbstractPubSubModel(final Graph<HashRingNode, DefaultEdge> graph, final long numOfSubs) 
+	public AbstractPubSubModel(final Graph<HashRingNode, DefaultEdge> graph, final double subToAllRatio) throws BadAttributeValueExpException 
 	{
 		super(	null,	//Owner of the model 
 				"PubSub Simulation",	//Name of the model 
@@ -52,16 +58,32 @@ public abstract class AbstractPubSubModel extends Model
 				true	//showInTrace flag
 					);
 		
-		this.graph = graph;
-		this.numOfSubs = numOfSubs;
+		if (subToAllRatio <= 0 || subToAllRatio >= 1)
+		{
+			throw new BadAttributeValueExpException(subToAllRatio);
+		}
 		
-		messageQueues = new HashMap<Double, Queue<Message>>();
-		nodeList = new ArrayList<HashRingNode>(graph.vertexSet());
+		this.graph = graph;
+		this.messageQueues = new HashMap<Double, Queue<Message>>();
+		this.nodeList = new ArrayList<HashRingNode>(graph.vertexSet());
+		this.numOfSubs = subToAllRatio*nodeList.size();
 		Collections.sort(nodeList);
-		isNodeSubscriber = new boolean[nodeList.size()];
-		subscribersIdList = new ArrayList<Integer>();
+		this.hashRingTraverser = new HashRingTraverser(nodeList, graph);
+		this.isNodeSubscriber = new boolean[nodeList.size()];
+		this.subscribersIdList = new ArrayList<Integer>();
+		this.routingTable = new RoutingTable(nodeList.size(), hashRingTraverser);
 	}
 	
+	public RoutingTable getRoutingTable()
+	{
+		return routingTable;
+	}
+
+	public HashRingTraverser getHashRingTraverser()
+	{
+		return hashRingTraverser;
+	}
+
 	public Graph<HashRingNode, DefaultEdge> getGraph()
 	{
 		return graph;
@@ -107,7 +129,7 @@ public abstract class AbstractPubSubModel extends Model
 	@Override
 	public String description() 
 	{
-		return "This model simulates the Cord algorithm for distributed netowrks";
+		return "TODO add description";
 	}
 
 	@Override
