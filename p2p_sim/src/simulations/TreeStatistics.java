@@ -2,6 +2,7 @@ package simulations;
 
 import graph_generators.HashRingGenerator;
 import graph_generators.HashRingNode;
+import graph_generators.HashRingNode.Role;
 
 import java.util.HashMap;
 import java.util.List;
@@ -10,30 +11,70 @@ import java.util.Map;
 import org.jgraph.graph.DefaultEdge;
 import org.jgrapht.Graph;
 import org.jgrapht.Graphs;
+import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.traverse.BreadthFirstIterator;
 
 public class TreeStatistics {
-	public static Map<Integer, Integer> getTreeStatistics(HashRingNode root,
-			Graph<HashRingNode, DefaultEdge> tree)
+	public Map<HashRingNode,Integer> distances = null;
+	public Map<Integer,Integer> histogram = new HashMap<Integer,Integer>();
+	public int max = -1;
+	public int min = 0;
+	public double avg = 0 ;
+	public  TreeStatistics(HashRingNode root,
+			DefaultDirectedGraph<HashRingNode, DefaultEdge> tree)
 	{
 		BreadthFirstIterator<HashRingNode, DefaultEdge> bfs = 
 				new BreadthFirstIterator<>(tree,root);
-		Map<HashRingNode, Integer> distances = new HashMap<HashRingNode, Integer>
+		distances = new HashMap<HashRingNode, Integer>
 					(tree.vertexSet().size());
 		distances.put(root, 0);
 		bfs.next();
 		while(bfs.hasNext())
 		{
-			HashRingNode node = bfs.next();
-			List<HashRingNode> neighbors = Graphs.neighborListOf(tree, node);
-			
+			HashRingNode n = bfs.next();
+			distances.put(n, getMinimalNeighbour(distances, root, tree));
 		}
-		return null;
+		min = tree.vertexSet().size();
+		for(HashRingNode n : distances.keySet())
+			if(n.getRole() == Role.NONE)
+				distances.remove(n);
+		for(Integer i : distances.values())
+		{
+			if(i<min)
+				min = i;
+			if(i> max)
+				max = i;
+			if(!histogram.containsKey(i))
+				histogram.put(i, 0);
+			histogram.put(i, histogram.get(i)+1);
+			avg += i;
+		}
+		avg = avg/distances.size();
+	}
+	public int getMax()
+	{
+		return max;
+	}
+	public int getMin()
+	{
+		return min;
+	}
+	public double getAvg()
+	{
+		return avg;
+	}
+	public Map<Integer,Integer> getHistogram()
+	{
+		return histogram;
 	}
 	private static int getMinimalNeighbour(Map<HashRingNode,Integer> distances,
-			HashRingNode node , Graph<HashRingNode,DefaultEdge> tree)
+			HashRingNode node , DefaultDirectedGraph<HashRingNode,DefaultEdge> tree)
 	{
-		
-		return 0;
+		int min = tree.vertexSet().size()+1;
+		for(DefaultEdge n : tree.incomingEdgesOf(node))
+			if(distances.containsKey(n.getSource()) && 
+					distances.get(n.getSource()) < min)
+				min = distances.get(n);
+		return min;
 	}
 }
