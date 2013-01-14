@@ -19,6 +19,7 @@ public class TreeStatistics {
 	public Map<Integer,Integer> histogram = new HashMap<Integer,Integer>();
 	public int max = -1;
 	public int min = 0;
+	public int numOfSteinerMessages=0;
 	public double avg = 0 ;
 	public  TreeStatistics(HashRingNode root,
 			DefaultDirectedGraph<HashRingNode, DefaultEdge> tree)
@@ -27,12 +28,20 @@ public class TreeStatistics {
 				new BreadthFirstIterator<>(tree,root);
 		distances = new HashMap<HashRingNode, Integer>
 					(tree.vertexSet().size());
+		HashMap<HashRingNode,Integer> steinerMessages = new HashMap<HashRingNode,Integer>
+				(tree.vertexSet().size()); 
 		distances.put(root, 0);
+		steinerMessages.put(root,0);
 		bfs.next();
 		while(bfs.hasNext())
 		{
 			HashRingNode n = bfs.next();
-			distances.put(n, getMinimalNeighbour(distances, n, tree)+1);
+			HashRingNode minimalNeighbour = getMinimalNeighbour(distances, n, tree);
+			distances.put(n, distances.get(minimalNeighbour)+1);
+			if(minimalNeighbour.getRole() == Role.NONE)
+				steinerMessages.put(n, steinerMessages.get(minimalNeighbour)+1);
+			else
+				steinerMessages.put(n,steinerMessages.get(minimalNeighbour));
 		}
 		min = tree.vertexSet().size();
 		HashRingNode[] keySetArray = new HashRingNode[distances.keySet().size()];
@@ -52,6 +61,8 @@ public class TreeStatistics {
 			avg += i;
 		}
 		avg = avg/distances.size();
+		for(Integer i : steinerMessages.values())
+			numOfSteinerMessages+= i;
 	}
 	public int getMax()
 	{
@@ -69,14 +80,22 @@ public class TreeStatistics {
 	{
 		return histogram;
 	}
-	private static int getMinimalNeighbour(Map<HashRingNode,Integer> distances,
+	public int getMBUSteinerMessages()
+	{
+		return numOfSteinerMessages;
+	}
+	private static HashRingNode getMinimalNeighbour(Map<HashRingNode,Integer> distances,
 			HashRingNode node , DefaultDirectedGraph<HashRingNode,DefaultEdge> tree)
 	{
 		int min = tree.vertexSet().size()+1;
+		HashRingNode minNode = null;
 		for(DefaultEdge n : tree.incomingEdgesOf(node))
 			if(distances.containsKey(tree.getEdgeSource(n)) && 
 					distances.get(tree.getEdgeSource(n)) < min)
+			{
 				min = distances.get(tree.getEdgeSource(n));
-		return min;
+				minNode = tree.getEdgeSource(n);
+			}
+		return minNode;
 	}
 }
