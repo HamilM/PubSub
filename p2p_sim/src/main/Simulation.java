@@ -34,7 +34,7 @@ public class Simulation
 	 */
 	public static void main(String[] args) throws FileNotFoundException, BadAttributeValueExpException
 	{
-		Graph<HashRingNode, DefaultEdge> g = SymphonyGenerator.generateSymphonyGraph(10, 2, true,  2);
+		Graph<HashRingNode, DefaultEdge> g = SymphonyGenerator.generateSymphonyGraph(10000, 9, true,  2);
 		
 		VisioExporter<HashRingNode,DefaultEdge> e = new VisioExporter<HashRingNode,DefaultEdge>();
 		File file = new File("out.csv");

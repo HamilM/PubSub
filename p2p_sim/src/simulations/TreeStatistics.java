@@ -32,13 +32,13 @@ public class TreeStatistics {
 		while(bfs.hasNext())
 		{
 			HashRingNode n = bfs.next();
-			distances.put(n, getMinimalNeighbour(distances, root, tree));
+			distances.put(n, getMinimalNeighbour(distances, n, tree)+1);
 		}
 		min = tree.vertexSet().size();
 		HashRingNode[] keySetArray = new HashRingNode[distances.keySet().size()];
 		keySetArray = distances.keySet().toArray(keySetArray);
 		for(int j = 0; j < keySetArray.length; j++/*HashRingNode n : distances.keySet()*/)
-			if(keySetArray[j].getRole() == Role.NONE)
+			if(keySetArray[j].getRole() != Role.SUBSCRIBER)
 				distances.remove(keySetArray[j]);
 		for(Integer i : distances.values())
 		{
@@ -76,7 +76,7 @@ public class TreeStatistics {
 		for(DefaultEdge n : tree.incomingEdgesOf(node))
 			if(distances.containsKey(tree.getEdgeSource(n)) && 
 					distances.get(tree.getEdgeSource(n)) < min)
-				min = distances.get(n);
+				min = distances.get(tree.getEdgeSource(n));
 		return min;
 	}
 }

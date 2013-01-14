@@ -38,7 +38,7 @@ public class BroadcastMessageGeneratorEvent extends
 		BroadcastMessageArrivalEvent messageArrivalEvent = new BroadcastMessageArrivalEvent(model, "Publisher sends new message", fShowInTrace);
 		messageArrivalEvent.schedule(message, new TimeSpan(0));
 		
-		schedule(new TimeSpan(model.getMessageArrivalTime(), model.TIME_UNIT));
+		//schedule(new TimeSpan(model.getMessageArrivalTime(), model.TIME_UNIT));
 		
 	}
 
