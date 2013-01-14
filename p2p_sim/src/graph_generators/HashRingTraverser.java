@@ -35,6 +35,16 @@ public class HashRingTraverser
 		return nodeList.get(nodeId).getHashKey();
 	}
 	
+	public HashRingNode getNodeByKey(double hashKey)
+	{
+		return nodeList.get(keyToIdMap.get(hashKey));
+	}
+	
+	public HashRingNode getNodeById(int nodeId)
+	{
+		return nodeList.get(nodeId);
+	}
+	
 	public int getSuccessorNodeId (final double hashKey)
 	{
 		int lower = 0;

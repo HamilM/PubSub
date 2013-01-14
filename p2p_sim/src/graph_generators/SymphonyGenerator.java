@@ -9,10 +9,11 @@ public abstract class SymphonyGenerator extends HashRingGenerator
 {
 	private static int k;
 	
-	public static Graph<HashRingNode, DefaultEdge> generateSymphonyGraph(final int n, final int k, final boolean isDirected)
+	public static Graph<HashRingNode, DefaultEdge> generateSymphonyGraph(final int n, final int k, final boolean isDirected, int numOfSuccessors)
 	{
-		SymphonyGenerator.k = k;
+		SymphonyGenerator.k = k+(numOfSuccessors-1);
 		Graph<HashRingNode, DefaultEdge> hashRing = generateHashRingGraph(n, isDirected);
+		addSuccessors(hashRing, numOfSuccessors);
 		hashRing = createLongDistanceLinks(n, k, hashRing);
 		
 		return hashRing;

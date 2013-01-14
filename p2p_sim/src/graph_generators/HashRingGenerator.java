@@ -211,7 +211,7 @@ public abstract class HashRingGenerator
 		for(HashRingNode node : graph.vertexSet())
 		{
 			HashRingNode tmp = getNext(graph, node);
-			for(int i = 0 ; i<k-1 ; ++i)
+			for(int i = 0 ; i<k ; ++i)
 			{
 				if(!graph.containsEdge(node, tmp))
 					graph.addEdge(node, tmp);

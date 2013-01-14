@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 import javax.management.BadAttributeValueExpException;
 
 import org.jgrapht.Graph;
+import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 
 import model.dynamic_types.Message;
@@ -43,13 +44,15 @@ public abstract class AbstractPubSubModel extends Model
 											  the index the publisher*/
 	protected double numOfSubs;
 	
+	public DefaultDirectedGraph<HashRingNode, DefaultEdge> networkTree; 
+	
 	/*
 	 * Static Model Components
 	 */
 	protected HashMap<Double, Queue<Message>> messageQueues;
 	protected ContDistExponential messageArrivalTime;
 	protected DiscreteDistUniform messageTargetNode;
-
+	
 	public AbstractPubSubModel(final Graph<HashRingNode, DefaultEdge> graph, final double subToAllRatio) throws BadAttributeValueExpException 
 	{
 		super(	null,	//Owner of the model 
@@ -143,7 +146,7 @@ public abstract class AbstractPubSubModel extends Model
 	private void initPublishersAndSubscribers()
 	{
 		publisherIndex = getMessageTargetNode();
-		
+		hashRingTraverser.getNodeById((int)publisherIndex).setRole(HashRingNode.Role.PUBLISHER);
 		long subCount = 0;
 		long current = -1;
 		while (subCount < numOfSubs)
@@ -154,6 +157,7 @@ public abstract class AbstractPubSubModel extends Model
 				subCount++;
 				isNodeSubscriber[(int)current] = true;
 				subscribersIdList.add((int)current);
+				hashRingTraverser.getNodeById((int)current).setRole(HashRingNode.Role.SUBSCRIBER);
 			}
 		}
 		

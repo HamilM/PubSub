@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jgraph.graph.DefaultEdge;
+import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.Graph;
 import org.jgrapht.Graphs;
 import org.jgrapht.graph.DefaultDirectedGraph;
@@ -35,9 +35,11 @@ public class TreeStatistics {
 			distances.put(n, getMinimalNeighbour(distances, root, tree));
 		}
 		min = tree.vertexSet().size();
-		for(HashRingNode n : distances.keySet())
-			if(n.getRole() == Role.NONE)
-				distances.remove(n);
+		HashRingNode[] keySetArray = new HashRingNode[distances.keySet().size()];
+		keySetArray = distances.keySet().toArray(keySetArray);
+		for(int j = 0; j < keySetArray.length; j++/*HashRingNode n : distances.keySet()*/)
+			if(keySetArray[j].getRole() == Role.NONE)
+				distances.remove(keySetArray[j]);
 		for(Integer i : distances.values())
 		{
 			if(i<min)
@@ -72,8 +74,8 @@ public class TreeStatistics {
 	{
 		int min = tree.vertexSet().size()+1;
 		for(DefaultEdge n : tree.incomingEdgesOf(node))
-			if(distances.containsKey(n.getSource()) && 
-					distances.get(n.getSource()) < min)
+			if(distances.containsKey(tree.getEdgeSource(n)) && 
+					distances.get(tree.getEdgeSource(n)) < min)
 				min = distances.get(n);
 		return min;
 	}

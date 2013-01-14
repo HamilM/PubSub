@@ -52,14 +52,21 @@ public class BroadcastMessageArrivalEvent extends AbstractMessageEvent
 			return;
 		}
 		
-		generateBroadcastMessagesArrivalEvents(model, messagesToSend);
+		generateBroadcastMessagesArrivalEvents(model, messagesToSend, firstMessage.getSrc());
 	}
 	
-	public static void generateBroadcastMessagesArrivalEvents(AbstractPubSubModel model, Message[] messages)
+	public static void generateBroadcastMessagesArrivalEvents(AbstractPubSubModel model, Message[] messages, double senderHashKey)
 	{
 		
 		for (Message message : messages)
 		{
+			if (model.networkTree.containsVertex(model.getHashRingTraverser().getNodeByKey(message.getSrc())) == false)
+			{
+				model.networkTree.addVertex(model.getHashRingTraverser().getNodeByKey(message.getSrc()));
+				model.networkTree.addEdge(	model.getHashRingTraverser().getNodeByKey(senderHashKey), 
+											model.getHashRingTraverser().getNodeByKey(message.getSrc()));
+			}
+			
 			BroadcastMessageArrivalEvent nearHalfMessageGeneration = 
 					new BroadcastMessageArrivalEvent(		model, 
 															"Message sent from vHashKey = " + message.getSrc() + " to " + message.getDst(), 
