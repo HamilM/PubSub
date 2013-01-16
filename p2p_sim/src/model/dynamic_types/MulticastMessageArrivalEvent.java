@@ -41,6 +41,11 @@ public class MulticastMessageArrivalEvent extends AbstractMessageEvent
 		/*
 		 * src is the hashKey of the node that is receiving the message. Dst is the final destination.
 		 */
+		if (model.networkTree.containsVertex(target) == false)
+		{
+			model.networkTree.addVertex(target);
+			model.networkTree.addEdge(model.getHashRingTraverser().getNodeByKey(message.getSrc()), target);
+		}
 		Message nextMessage = new Message(model, target.getHashKey(), message.getDst(),false);
 		
 		MulticastMessageArrivalEvent messageGeneration = 

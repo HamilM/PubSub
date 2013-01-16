@@ -26,10 +26,6 @@ public class MulticastModel extends AbstractPubSubModel
 	@Override
 	public void doInitialSchedules()
 	{
-		List<Integer> l = subscribersIdList;
-		Collections.sort(l);
-		System.out.println(l);
-		System.out.println(publisherIndex);
 		MulticastMessageGeneratorEvent generator = new MulticastMessageGeneratorEvent(this, "Message Generator", true);
 		generator.schedule(new TimeSpan(0));
 	}

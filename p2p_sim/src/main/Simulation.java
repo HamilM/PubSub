@@ -34,14 +34,14 @@ public class Simulation
 	 */
 	public static void main(String[] args) throws FileNotFoundException, BadAttributeValueExpException
 	{
-		Graph<HashRingNode, DefaultEdge> g = SymphonyGenerator.generateSymphonyGraph(10000, 9, true,  2);
+		Graph<HashRingNode, DefaultEdge> g = SymphonyGenerator.generateSymphonyGraph(20, 2, true,  2);
 		
 		VisioExporter<HashRingNode,DefaultEdge> e = new VisioExporter<HashRingNode,DefaultEdge>();
 		File file = new File("out.csv");
 		e.export(new FileOutputStream(file), g);
 		
-		//AbstractPubSubModel model = new MulticastModel(g, 0.2);
-		AbstractPubSubModel model = new DirectedBroadcastModel(g, 0.2);
+		AbstractPubSubModel model = new MulticastModel(g, 0.2);
+		//AbstractPubSubModel model = new DirectedBroadcastModel(g, 0.2);
 		Experiment exp = new Experiment("Experiment1");
 		model.connectToExperiment(exp);
 		exp.setShowProgressBar(true);
@@ -57,6 +57,7 @@ public class Simulation
 		TreeStatistics s = new TreeStatistics(	model.getHashRingTraverser().
 													getNodeById(model.getPublisherIndex()),
 												model.networkTree);
+		//System.out.println(model.getSubscribersIdList());
 		System.out.println("Average distance = " + s.avg + ", Min distance = " + s.min + ", Max distance = " + s.max);
 
 		

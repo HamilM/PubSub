@@ -27,7 +27,7 @@ public class MulticastMessageGeneratorEvent extends AbstractMessasgeGeneratorEve
 		MulticastMessageArrivalEvent messageArrivalEvent = new MulticastPublisherMessageArrivalEvent(model, "Publisher sends new message", fShowInTrace);
 		messageArrivalEvent.schedule(message, new TimeSpan(0));
 		
-		schedule(new TimeSpan(model.getMessageArrivalTime(), model.TIME_UNIT));
+		//schedule(new TimeSpan(model.getMessageArrivalTime(), model.TIME_UNIT));
 		
 		
 	}
