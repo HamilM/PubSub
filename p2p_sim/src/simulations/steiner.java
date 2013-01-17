@@ -21,7 +21,7 @@ import graph_generators.*;
 import graph_generators.HashRingNode.Role;
 public class steiner {
 
-	public static double steinerApprox(Graph<HashRingNode,DefaultEdge> ring)
+	public static int steinerApprox(Graph<HashRingNode,DefaultEdge> ring)
 	{
 		Set<DefaultWeightedEdge> es;
 		Pseudograph<HashRingNode, DefaultWeightedEdge> tmp = new Pseudograph<>(DefaultWeightedEdge.class);

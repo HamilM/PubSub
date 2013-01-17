@@ -21,6 +21,7 @@ public class TreeStatistics {
 	public int min = 0;
 	public int numOfSteinerMessages=0;
 	public double avg = 0 ;
+	public int sum = 0;
 	public  TreeStatistics(HashRingNode root,
 			DefaultDirectedGraph<HashRingNode, DefaultEdge> tree)
 	{
@@ -58,9 +59,9 @@ public class TreeStatistics {
 			if(!histogram.containsKey(i))
 				histogram.put(i, 0);
 			histogram.put(i, histogram.get(i)+1);
-			avg += i;
+			sum+=i;
 		}
-		avg = avg/distances.size();
+		avg = sum/distances.size();
 		for(Integer i : steinerMessages.values())
 			numOfSteinerMessages+= i;
 	}
@@ -83,6 +84,10 @@ public class TreeStatistics {
 	public int getMBUSteinerMessages()
 	{
 		return numOfSteinerMessages;
+	}
+	public int getSumMBU()
+	{
+		return sum;
 	}
 	private static HashRingNode getMinimalNeighbour(Map<HashRingNode,Integer> distances,
 			HashRingNode node , DefaultDirectedGraph<HashRingNode,DefaultEdge> tree)

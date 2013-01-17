@@ -46,6 +46,10 @@ public class MulticastMessageArrivalEvent extends AbstractMessageEvent
 			model.networkTree.addVertex(target);
 			model.networkTree.addEdge(model.getHashRingTraverser().getNodeByKey(message.getSrc()), target);
 		}
+		else if (model.networkTree.containsEdge(model.getHashRingTraverser().getNodeByKey(message.getSrc()), target) == false)
+		{
+			model.networkTree.addEdge(model.getHashRingTraverser().getNodeByKey(message.getSrc()), target);
+		}
 		Message nextMessage = new Message(model, target.getHashKey(), message.getDst(),false);
 		
 		MulticastMessageArrivalEvent messageGeneration = 
