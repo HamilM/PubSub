@@ -149,7 +149,7 @@ public abstract class AbstractPubSubModel extends Model
 		hashRingTraverser.getNodeById((int)publisherIndex).setRole(HashRingNode.Role.PUBLISHER);
 		long subCount = 0;
 		long current = -1;
-		while (subCount < numOfSubs)
+		while (subCount < (Math.min(numOfSubs, nodeList.size()-1)))
 		{
 			current = getMessageTargetNode();
 			if (current != publisherIndex && isNodeSubscriber[(int) current] == false)

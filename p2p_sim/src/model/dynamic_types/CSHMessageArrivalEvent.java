@@ -90,9 +90,10 @@ public class CSHMessageArrivalEvent extends AbstractMessageEvent
 		 * Find the closest subscriber nodes of the current node.
 		 */
 		CSHModel cshModel = (CSHModel)model;
-		int k = cshModel.getK();
 		ArrayList<Double> csList = (ArrayList<Double>) cshModel.getClosestSubscribers(vHashKey);
+		int k = csList.size();
 		ArrayList<Message> messages = new ArrayList<Message>();
+		if (k == 0) return messages;
 		Double nHashKey0 = csList.get(0);
 		HashRingNode next0 = null;
 		Double nHashKey = null;

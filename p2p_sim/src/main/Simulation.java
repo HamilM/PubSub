@@ -5,6 +5,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import javax.management.BadAttributeValueExpException;
@@ -86,21 +88,37 @@ public class Simulation
 		Experiment exp = new Experiment("Experiment1");
 		AbstractPubSubModel DBModel = new DirectedBroadcastModel(graph, subscribers);
 		out.println(iteration+","+overlay+","+nodes+","+"BCF,"+"-1,"+subscribers+","+successor+","+LDL+","+runExperiment(DBModel, exp,false));
+		exp = new Experiment("Experiment2");
 		AbstractPubSubModel MModel =  new MulticastModel(graph, subscribers);
 		out.println(iteration+","+overlay+","+nodes+","+"MBU,"+"-1,"+subscribers+","+successor+","+LDL+","+runExperiment(MModel, exp,true));
 
 		int[] k = {1,2,4};
 		for (int i = 0; i < k.length; i++) {
+			exp = new Experiment("Experiment"+(i+3));
 			AbstractPubSubModel cshModel = new CSHModel(graph, subscribers, k[i]);
 			out.println(iteration+","+overlay+","+nodes+","+"CSH,"+k[i]+","+subscribers+","+successor+","+LDL+","+runExperiment(cshModel, exp,false));
+			//testCSH((CSHModel)cshModel); DON'T DELETE
 		}
+		return;
+	}
+	
+	// making sure csh reaches all subscribers
+	private static void testCSH(CSHModel model) {
+		Set<HashRingNode> reachedNodes = model.networkTree.vertexSet();
+		Set<HashRingNode> nodesInGraph = model.getGraph().vertexSet();
+		Set<HashRingNode> subscriberNodes = new HashSet<HashRingNode>();
+		for (HashRingNode node : nodesInGraph) {
+			if (node.getRole() == HashRingNode.Role.SUBSCRIBER) subscriberNodes.add(node);
+		}
+		if (reachedNodes.containsAll(subscriberNodes)) System.out.println("Well Done");
+		else System.out.println("oh no");
 		return;
 	}
 	
 	private static String runExperiment(AbstractPubSubModel model, Experiment exp,boolean isMBU)
 	{
 		model.connectToExperiment(exp);
-		exp.setShowProgressBar(true);
+		exp.setShowProgressBar(false);
 		exp.stop(new TimeInstant(10, TimeUnit.MINUTES));
 		exp.tracePeriod(new TimeInstant(0), new TimeInstant(0, TimeUnit.SECONDS));
 		exp.debugPeriod(new TimeInstant(0), new TimeInstant(0, TimeUnit.MINUTES));
