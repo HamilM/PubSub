@@ -5,8 +5,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import javax.management.BadAttributeValueExpException;
@@ -92,26 +90,12 @@ public class Simulation
 		AbstractPubSubModel MModel =  new MulticastModel(graph, subscribers);
 		out.println(iteration+","+overlay+","+nodes+","+"MBU,"+"-1,"+subscribers+","+successor+","+LDL+","+runExperiment(MModel, exp,true));
 
-		int[] k = {1,2,4, 8, 16};
+		int[] k = {1,2,4};
 		for (int i = 0; i < k.length; i++) {
-			exp = new Experiment("Experiment"+(i+3));
+			exp = new Experiment("Experiment" + Integer.toString(3+i));
 			AbstractPubSubModel cshModel = new CSHModel(graph, subscribers, k[i]);
 			out.println(iteration+","+overlay+","+nodes+","+"CSH,"+k[i]+","+subscribers+","+successor+","+LDL+","+runExperiment(cshModel, exp,false));
-			//testCSH((CSHModel)cshModel); DON'T DELETE
 		}
-		return;
-	}
-	
-	// making sure csh reaches all subscribers
-	private static void testCSH(CSHModel model) {
-		Set<HashRingNode> reachedNodes = model.networkTree.vertexSet();
-		Set<HashRingNode> nodesInGraph = model.getGraph().vertexSet();
-		Set<HashRingNode> subscriberNodes = new HashSet<HashRingNode>();
-		for (HashRingNode node : nodesInGraph) {
-			if (node.getRole() == HashRingNode.Role.SUBSCRIBER) subscriberNodes.add(node);
-		}
-		if (reachedNodes.containsAll(subscriberNodes)) System.out.println("Well Done");
-		else System.out.println("oh no");
 		return;
 	}
 	
