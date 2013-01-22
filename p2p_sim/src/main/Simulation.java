@@ -90,7 +90,7 @@ public class Simulation
 		AbstractPubSubModel MModel =  new MulticastModel(graph, subscribers);
 		out.println(iteration+","+overlay+","+nodes+","+"MBU,"+"-1,"+subscribers+","+successor+","+LDL+","+runExperiment(MModel, exp,true));
 
-		int[] k = {1,2,4};
+		int[] k = {1,2,4,8,16};
 		for (int i = 0; i < k.length; i++) {
 			exp = new Experiment("Experiment" + Integer.toString(3+i));
 			AbstractPubSubModel cshModel = new CSHModel(graph, subscribers, k[i]);
